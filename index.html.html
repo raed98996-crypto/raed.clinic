@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نظام وصولات عيادة الدكتور رائد رسول الموسوي</title>
+<style>
+:root{--blue:#1769aa;--navy:#123653;--pale:#edf6fc;--line:#d8e4ec;--ink:#203040;--muted:#607386;--green:#16794b;--red:#b42318}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f7fa;color:var(--ink);font-family:Tahoma,Arial,sans-serif}
+header{background:linear-gradient(120deg,#123653,#1769aa);color:#fff;padding:22px 18px}
+.wrap{max-width:1180px;margin:auto}
+header h1{margin:0 0 7px;font-size:25px} header p{margin:0;opacity:.9}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+button,.btn{border:0;border-radius:9px;padding:11px 15px;font:inherit;cursor:pointer;background:var(--blue);color:#fff}
+button:hover,.btn:hover{filter:brightness(.95)}
+button.secondary{background:#e5eef5;color:var(--navy);border:1px solid #d2e0eb}
+button.danger{background:#b42318}
+button.green{background:var(--green)}
+button:disabled{opacity:.5;cursor:not-allowed}
+main{max-width:1180px;margin:0 auto;padding:0 16px 30px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 4px 16px #183c5510}
+h2{font-size:19px;margin:0 0 15px;color:var(--navy)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+input,select{width:100%;padding:11px;border:1px solid #cbd9e4;border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:2px solid #b8dafa;border-color:var(--blue)}
+.treatments{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.treatments button{background:#eef6fc;color:#164d77;border:1px solid #d4e8f7;text-align:center;padding:13px 6px}
+.treatments button:hover{background:#dceefa}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 8px;border-bottom:1px solid #e3ebf1;text-align:right}
+th{background:#f4f8fb;color:#496174;font-size:13px}
+td input{min-width:90px}
+.table-wrap{overflow-x:auto}
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:15px}
+.stat{background:var(--pale);border:1px solid #d8eaf8;padding:14px;border-radius:10px}
+.stat span{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+.stat strong{font-size:21px;color:var(--navy)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.note{font-size:12px;color:var(--muted);line-height:1.7}
+.hidden{display:none!important}
+.status{padding:10px;border-radius:8px;margin-bottom:12px;display:none}
+.status.ok{display:block;background:#e9f8ef;color:#166534}
+.status.err{display:block;background:#fff0ef;color:#9b1c1c}
+.receipt-paper{display:none}
+.small{font-size:12px;color:var(--muted)}
+.history-row button{padding:7px 10px;font-size:12px}
+.empty{text-align:center;color:var(--muted);padding:25px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.treatments{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){header h1{font-size:20px}.grid{grid-template-columns:1fr}.treatments{grid-template-columns:repeat(2,minmax(0,1fr))}.summary{grid-template-columns:1fr}}
+@media print{
+ body{background:#fff}
+ body *{visibility:hidden!important}
+ #printArea,#printArea *{visibility:visible!important}
+ #printArea{display:block!important;position:absolute;inset:0 auto auto 0;width:100%;padding:20px;color:#111;background:#fff}
+ .print-title{text-align:center;border-bottom:2px solid #222;padding-bottom:12px;margin-bottom:15px}
+ .print-title h2{color:#111;margin-bottom:5px}
+ .print-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+ #printArea table{margin-top:12px}
+ #printArea th{background:#eee!important}
+ .print-total{margin-top:16px;width:300px;max-width:100%;margin-right:auto}
+ .print-total div{display:flex;justify-content:space-between;padding:7px;border-bottom:1px solid #ddd}
+ .print-footer{text-align:center;margin-top:25px;border-top:1px dashed #777;padding-top:12px;font-size:12px}
+ @page{size:auto;margin:12mm}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>عيادة الدكتور رائد رسول الموسوي لطب الأسنان</h1>
+<p>نظام إصدار وحفظ وصولات القبض — يعمل محلياً على هذه الحاسبة</p>
+</div></header>
+<main>
+<nav>
+<button onclick="showTab('new')">＋ وصل جديد</button>
+<button class="secondary" onclick="showTab('history')">📋 الوصولات السابقة</button>
+<button class="secondary" onclick="showTab('report')">📊 حسابات اليوم</button>
+<button class="secondary" onclick="backupData()">⬇ نسخة احتياطية</button>
+<label class="btn" style="background:#e5eef5;color:#123653;border:1px solid #d2e0eb">⬆ استرجاع نسخة<input id="restoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreData(event)"></label>
+</nav>
+<div id="status" class="status"></div>
+
+<section id="tab-new">
+<div class="panel">
+<h2>معلومات الوصل</h2>
+<div class="grid">
+<div class="field"><label for="customer">اسم الزبون *</label><input id="customer" placeholder="اكتب اسم المريض"></div>
+<div class="field"><label for="secretary">اسم السكرتير *</label><input id="secretary" placeholder="اكتب اسم السكرتير"></div>
+<div class="field"><label for="sessions">عدد الجلسات</label><input id="sessions" type="number" min="1" step="1" placeholder="اكتب عدد الجلسات"></div>
+<div class="field"><label>التاريخ</label><input id="dateField" readonly></div>
+<div class="field"><label>الوقت</label><input id="timeField" readonly></div>
+</div>
+<p class="note">رقم الوصل يتولد تلقائياً عند الحفظ. الوقت والتاريخ حسب ساعة الحاسبة.</p>
+</div>
+<div class="panel">
+<h2>اختيار العلاج</h2>
+<div class="treatments" id="treatmentButtons"></div>
+<p class="note">اضغط على اسم العلاج لإضافته إلى الوصل، ثم اكتب السعر. تقدر تضيف أكثر من علاج.</p>
+</div>
+<div class="panel">
+<h2>تفاصيل العلاجات والأسعار</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>العلاج</th><th>السعر (د.ع)</th><th>إجراء</th></tr></thead>
+<tbody id="itemsBody"><tr><td colspan="3" class="empty">ما ضفت أي علاج بعد.</td></tr></tbody>
+</table></div>
+<div class="summary">
+<div class="stat"><span>المجموع الكلي</span><strong id="totalText">0 د.ع</strong></div>
+<div class="stat"><span>المبلغ المستلم</span><input id="received" type="number" min="0" step="1" value="0" oninput="updateTotals()" placeholder="المبلغ المستلم"></div>
+<div class="stat"><span>المبلغ المتبقي</span><strong id="remainingText">0 د.ع</strong></div>
+</div>
+<div class="actions">
+<button class="green" onclick="saveReceipt()">حفظ الوصل</button>
+<button onclick="printCurrent()">طباعة الوصل</button>
+<button class="secondary" onclick="clearForm()">تفريغ النموذج</button>
+</div>
+<p class="note">ملاحظة: لا تحفظ معلومات المريض إلا بعد الضغط على «حفظ الوصل». تأكد من أخذ نسخة احتياطية بانتظام.</p>
+</div>
+</section>
+
+<section id="tab-history" class="hidden">
+<div class="panel">
+<h2>الوصولات السابقة</h2>
+<div class="grid" style="grid-template-columns:2fr 1fr">
+<div class="field"><label>البحث باسم المريض أو رقم الوصل أو السكرتير</label><input id="historySearch" oninput="renderHistory()" placeholder="اكتب للبحث..."></div>
+<div class="field"><label>التاريخ</label><input id="historyDate" type="date" oninput="renderHistory()"></div>
+</div>
+<div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>رقم الوصل</th><th>التاريخ والوقت</th><th>اسم الزبون</th><th>المجموع</th><th>المستلم</th><th>المتبقي</th><th>إجراءات</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+</div>
+</section>
+
+<section id="tab-report" class="hidden">
+<div class="panel">
+<h2>حسابات اليوم</h2>
+<div class="field" style="max-width:260px"><label>اختيار اليوم</label><input id="reportDate" type="date" onchange="renderReport()"></div>
+<div class="summary">
+<div class="stat"><span>عدد الوصولات</span><strong id="reportCount">0</strong></div>
+<div class="stat"><span>مجموع قيمة الوصولات</span><strong id="reportTotal">0 د.ع</strong></div>
+<div class="stat"><span>المبالغ المستلمة</span><strong id="reportReceived">0 د.ع</strong></div>
+</div>
+<div class="stat" style="margin-top:12px"><span>المبالغ المتبقية لليوم</span><strong id="reportRemaining">0 د.ع</strong></div>
+<p class="note">التقرير يجمع الوصولات المحفوظة بتاريخ اليوم المختار. لا يشمل المصروفات.</p>
+</div>
+</section>
+
+<div id="printArea" class="receipt-paper"></div>
+</main>
+<script>
+const treatments = ["جذر VIP","جذر","اعتيادية VIP","اعتيادية","قلع سن العقل","قلع اعتيادي","عملية","فحص","أشعة","تنظيف","تقويم","تركيب","تركيب ثابت","تركيب متحرك","زراعة"];
+let currentItems = [];
+let editingReceiptId = null;
+const $ = id => document.getElementById(id);
+const money = n => (Number(n)||0).toLocaleString('en-US') + " د.ع";
+const pad = n => String(n).padStart(2,'0');
+function localDate(d=new Date()){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function localTime(d=new Date()){return pad(d.getHours())+":"+pad(d.getMinutes())}
+function refreshClock(){ $('dateField').value=localDate(); $('timeField').value=localTime(); }
+setInterval(refreshClock,15000); refreshClock();
+function getReceipts(){try{return JSON.parse(localStorage.getItem('raedClinicReceipts')||'[]')}catch(e){return []}}
+function setReceipts(a){localStorage.setItem('raedClinicReceipts',JSON.stringify(a))}
+function showStatus(msg,type='ok'){const el=$('status');el.textContent=msg;el.className='status '+type;window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{el.className='status'},4500)}
+function showTab(name){
+['new','history','report'].forEach(t=>$('tab-'+t).classList.toggle('hidden',t!==name));
+if(name==='history')renderHistory(); if(name==='report')renderReport();
+}
+function initTreatments(){ $('treatmentButtons').innerHTML=''; treatments.forEach(t=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>addItem(t);$('treatmentButtons').appendChild(b)})}
+function addItem(name){currentItems.push({name,price:''});renderItems()}
+function removeItem(i){currentItems.splice(i,1);renderItems()}
+function renderItems(){
+const body=$('itemsBody'); body.innerHTML='';
+if(!currentItems.length){body.innerHTML='<tr><td colspan="3" class="empty">ما ضفت أي علاج بعد.</td></tr>';updateTotals();return}
+currentItems.forEach((it,i)=>{
+const tr=document.createElement('tr');
+const name=document.createElement('td');name.textContent=it.name;
+const priceCell=document.createElement('td');const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.placeholder='اكتب السعر';input.value=it.price;input.oninput=()=>{currentItems[i].price=input.value;updateTotals()};priceCell.appendChild(input);
+const action=document.createElement('td');const b=document.createElement('button');b.className='danger';b.textContent='حذف';b.onclick=()=>removeItem(i);action.appendChild(b);
+tr.append(name,priceCell,action);body.appendChild(tr)
+});updateTotals()
+}
+function total(){return currentItems.reduce((s,i)=>s+(Number(i.price)||0),0)}
+function updateTotals(){const t=total(),r=Number($('received').value)||0;$('totalText').textContent=money(t);$('remainingText').textContent=money(Math.max(0,t-r));}
+function clearForm(){if((currentItems.length||$('customer').value)&&!confirm('تريد تفرّغ النموذج الحالي؟'))return;currentItems=[];editingReceiptId=null;$('customer').value='';$('secretary').value='';$('sessions').value='';$('received').value='0';refreshClock();renderItems();$('customer').focus()}
+function makeReceiptObject(existingId){
+const t=total(),received=Number($('received').value)||0;
+return {id:existingId||('R'+Date.now()),number:existingId?getReceipts().find(x=>x.id===existingId)?.number:null,customer:$('customer').value.trim(),secretary:$('secretary').value.trim(),sessions:Math.max(0,parseInt($('sessions').value,10)||0),date:$('dateField').value,time:$('timeField').value,items:currentItems.map(i=>({name:i.name,price:Number(i.price)||0})),total:t,received:received,remaining:Math.max(0,t-received)}
+}
+function saveReceipt(){
+if(!$('customer').value.trim()){showStatus('اكتب اسم الزبون أولاً.','err');$('customer').focus();return}
+if(!$('secretary').value.trim()){showStatus('اكتب اسم السكرتير أولاً.','err');$('secretary').focus();return}
+if(!currentItems.length){showStatus('اختار علاجاً واحداً على الأقل.','err');return}
+if(currentItems.some(i=>i.price===''||!Number.isFinite(Number(i.price))||Number(i.price)<0)){showStatus('اكتب سعر كل علاج بشكل صحيح.','err');return}
+const receipts=getReceipts();let obj=makeReceiptObject(editingReceiptId);
+if(editingReceiptId){const idx=receipts.findIndex(x=>x.id===editingReceiptId);if(idx<0){showStatus('ما لكينا الوصل المراد تعديله.','err');return}obj.number=receipts[idx].number;receipts[idx]=obj}
+else{const max=receipts.reduce((m,r)=>Math.max(m,Number(r.number)||0),0);obj.number=max+1;receipts.push(obj)}
+setReceipts(receipts);editingReceiptId=obj.id;showStatus('تم حفظ الوصل رقم '+obj.number+' بنجاح.');renderHistory();renderReport();preparePrint(obj);
+}
+function preparePrint(r){
+const items=r.items.map(i=>`<tr><td>${esc(i.name)}</td><td>${money(i.price)}</td></tr>`).join('');
+$('printArea').innerHTML=`<div class="print-title"><h2>عيادة الدكتور رائد رسول الموسوي لطب الأسنان</h2><div>وصل قبض رسمي</div><h3>رقم الوصل: ${r.number}</h3></div>
+<div class="print-meta"><div><b>اسم الزبون:</b> ${esc(r.customer)}</div><div><b>اسم السكرتير:</b> ${esc(r.secretary)}</div><div><b>عدد الجلسات:</b> ${Number(r.sessions)||0}</div><div><b>التاريخ:</b> ${esc(r.date)}</div><div><b>الوقت:</b> ${esc(r.time)}</div></div>
+<table><thead><tr><th>العلاج</th><th>السعر</th></tr></thead><tbody>${items}</tbody></table>
+<div class="print-total"><div><b>المجموع الكلي</b><b>${money(r.total)}</b></div><div><span>المبلغ المستلم</span><b>${money(r.received)}</b></div><div><span>المبلغ المتبقي</span><b>${money(r.remaining)}</b></div></div>
+<div class="print-footer">شكراً لزيارتكم — نتمنى لكم دوام الصحة والعافية</div>`;
+}
+function printCurrent(){
+if(!currentItems.length){showStatus('أضف علاجاً قبل الطباعة.','err');return}
+if(currentItems.some(i=>i.price===''||Number(i.price)<0)){showStatus('اكتب أسعار العلاجات قبل الطباعة.','err');return}
+const r=makeReceiptObject(editingReceiptId);if(!r.number)r.number='غير محفوظ';preparePrint(r);window.print()
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderHistory(){
+const q=($('historySearch')?.value||'').trim().toLowerCase(),date=$('historyDate')?.value||'';
+const rows=getReceipts().slice().sort((a,b)=>(b.number||0)-(a.number||0)).filter(r=>(!q||String(r.customer).toLowerCase().includes(q)||String(r.secretary).toLowerCase().includes(q)||String(r.number).includes(q))&&(!date||r.date===date));
+const body=$('historyBody');body.innerHTML='';
+if(!rows.length){body.innerHTML='<tr><td colspan="7" class="empty">ماكو وصولات مطابقة للبحث.</td></tr>';return}
+rows.forEach(r=>{const tr=document.createElement('tr');tr.className='history-row';tr.innerHTML=`<td>${r.number}</td><td>${esc(r.date)}<br>${esc(r.time)}</td><td>${esc(r.customer)}</td><td>${money(r.total)}</td><td>${money(r.received)}</td><td>${money(r.remaining)}</td><td><button onclick="viewReceipt('${r.id}')">عرض</button> <button class="secondary" onclick="editReceipt('${r.id}')">تعديل</button> <button class="danger" onclick="deleteReceipt('${r.id}')">حذف</button></td>`;body.appendChild(tr)})
+}
+function viewReceipt(id){const r=getReceipts().find(x=>x.id===id);if(!r)return;preparePrint(r);window.print()}
+function editReceipt(id){
+const r=getReceipts().find(x=>x.id===id);if(!r)return;
+editingReceiptId=r.id;$('customer').value=r.customer;$('secretary').value=r.secretary;$('sessions').value=r.sessions||'';$('dateField').value=r.date;$('timeField').value=r.time;currentItems=r.items.map(i=>({name:i.name,price:String(i.price)}));$('received').value=r.received;renderItems();showTab('new');showStatus('أنت تعدّل الوصل رقم '+r.number+'. اضغط حفظ الوصل لحفظ التغييرات.');window.scrollTo({top:0,behavior:'smooth'})
+}
+function deleteReceipt(id){const r=getReceipts().find(x=>x.id===id);if(!r)return;if(!confirm('متأكد تريد حذف الوصل رقم '+r.number+'؟ لا يمكن التراجع عن الحذف.'))return;setReceipts(getReceipts().filter(x=>x.id!==id));renderHistory();renderReport();showStatus('تم حذف الوصل.')}
+function renderReport(){
+const date=$('reportDate').value||localDate();const rs=getReceipts().filter(r=>r.date===date);
+$('reportCount').textContent=rs.length;
+$('reportTotal').textContent=money(rs.reduce((s,r)=>s+(Number(r.total)||0),0));
+$('reportReceived').textContent=money(rs.reduce((s,r)=>s+(Number(r.received)||0),0));
+$('reportRemaining').textContent=money(rs.reduce((s,r)=>s+(Number(r.remaining)||0),0));
+}
+function backupData(){
+const data={app:'Raed Clinic Receipts',version:1,exportedAt:new Date().toISOString(),receipts:getReceipts()};
+const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='backup-clinic-receipts-'+localDate()+'.json';a.click();URL.revokeObjectURL(a.href);showStatus('تم تجهيز النسخة الاحتياطية.')
+}
+function restoreData(event){
+const file=event.target.files[0];if(!file)return;const reader=new FileReader();
+reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const list=Array.isArray(parsed)?parsed:parsed.receipts;if(!Array.isArray(list))throw new Error('bad');if(!confirm('استرجاع النسخة سيستبدل الوصولات الحالية. تأكد أنك أخذت نسخة احتياطية أولاً. تكمل؟'))return;setReceipts(list);renderHistory();renderReport();showStatus('تم استرجاع النسخة الاحتياطية بنجاح.')}catch(e){showStatus('ملف النسخة الاحتياطية غير صالح.','err')}finally{$('restoreFile').value=''}};
+reader.readAsText(file)
+}
+$('reportDate').value=localDate();initTreatments();renderItems();renderHistory();renderReport();
+</script>
+</body>
+</html>
